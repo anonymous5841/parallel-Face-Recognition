@@ -6,9 +6,11 @@ the above code implements the concept of parallel face recognition using LBP(Loc
 The code contains both terminal execution and web based execution options 
 
 **For terminal based execution:**
+
 Option 1:
 
 1.First add image path to the img variable in compare_implementations.py
+
 2.Run the compare_implementation.py file
 
 Option 2:
@@ -16,14 +18,22 @@ use command:"c:/Users/(Username)/Desktop/(foldername)/python_scripts/compare_imp
 
 **For web absed execution:**
 Run command in terminal: node server.js
+
 ctrl+click the localhost link it prints in the terminal
 
 **Results/Ouput:**
 1.serial time
+
 2.parallel time
+
 3.confidence score
+
 4.speedup
+
 5.Matched img name
+
 in web based extra features:
+
 6:data edit/delete
+
 7:data registeration
