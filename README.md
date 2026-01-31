@@ -7,6 +7,7 @@ The code contains both terminal execution and web based execution options
 
 **For terminal based execution:**
 Option 1:
+
 1.First add image path to the img variable in compare_implementations.py
 2.Run the compare_implementation.py file
 
