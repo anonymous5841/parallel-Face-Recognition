@@ -1,0 +1,4 @@
+numpy
+opencv-python
+# Optional: if you want headless OpenCV on a server without GUI support:
+# opencv-python-headless
