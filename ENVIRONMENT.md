@@ -39,7 +39,3 @@ How the pieces map
 - Python: files under `python_scripts/` (face recognition implementations and utils).
 - Reference images: `reference_faces/` — must contain reference face images for recognition.
 
-Troubleshooting
-- If Python fails to import cv2: ensure `opencv-python` installed and compatible with your Python version.
-- If uploads are not processed: check that `server.js` is spawning the correct Python executable (it uses `python`).
-
