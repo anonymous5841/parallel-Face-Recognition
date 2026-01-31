@@ -37,6 +37,8 @@ ctrl+click the localhost link it prints in the terminal
 
 in web based extra features:
 
-6:data edit/delete
+6.data edit/delete
 
-7:data registeration
+7.data registeration
+<img width="1366" height="731" alt="s1" src="https://github.com/user-attachments/assets/489f9415-ef8a-470d-9330-f65dd16008a3" />
+<img width="1363" height="727" alt="s2" src="https://github.com/user-attachments/assets/aa0db734-7355-4b2a-a53d-769747c0468a" />
