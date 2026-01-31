@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Face Recognition System</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tsparticles-confetti@2.10.1/tsparticles.confetti.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tsparticles-slim@2.0.6/tsparticles.slim.bundle.min.js"></script>
+
+
+<style>
+/* =========================
+   HIGH-TECH COLOR SCHEME
+========================= */
+:root {
+    --bg-main: #020a13;
+    --glass-panel: rgba(5, 21, 37, 0.85);
+    --glass-selected: rgba(5, 21, 37, 0.95);
+    --accent-cyan: #00f7ff;
+    --text-bright: #ffffff;
+    --text-dim: #a0aebf;
+    
+    --glow-cyan: 0 0 20px rgba(0, 247, 255, 0.4);
+    --border-glow: 1px solid rgba(0, 247, 255, 0.2);
+    --border-selected: 1px solid rgba(0, 247, 255, 0.8);
+}
+
+/* GLOBAL RESET */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body, html {
+    height: 100%;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-main);
+    /* Subtle static background pattern underneath particles */
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.828-1.415 1.415-.828-.828.828-.828zm-1.415 1.415l.828.828-1.415 1.415-.828-.828.828-.828z' fill='%23112233' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E");
+    overflow: hidden;
+}
+
+/* Particles Container */
+#tsparticles {
+    position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: 1; pointer-events: none;
+}
+
+/* ===========================
+   LEFT SIDEBAR
+=========================== */
+.left-pane {
+    position: fixed; left: 0; top: 0; width: 280px; height: 100%;
+    background: linear-gradient(180deg, rgba(2, 10, 19, 1) 0%, rgba(0, 30, 60, 1) 100%);
+    border-right: 1px solid rgba(0, 247, 255, 0.1);
+    color: var(--text-bright);
+    display: flex; flex-direction: column; justify-content: center;
+    align-items: center; text-align: center; padding: 40px;
+    z-index: 10;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+}
+
+.left-title { 
+    font-size: 32px; font-weight: 800; margin-bottom: 20px; 
+    color: var(--accent-cyan);
+    text-shadow: var(--glow-cyan);
+    letter-spacing: 1px;
+    line-height: 1.2;
+}
+.left-desc { 
+    font-size: 15px; color: var(--text-dim); line-height: 1.6; 
+}
+
+/* ===========================
+   RIGHT MAIN CONTENT
+=========================== */
+.right-side {
+    margin-left: 280px; width: calc(100% - 280px); height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    z-index: 5; /* Above particles */
+}
+
+/* CAROUSEL WRAPPER */
+.carousel-wrapper {
+    position: relative;
+    width: 900px;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* THE TRACK */
+.cards-container {
+    display: flex;
+    gap: 40px;
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    align-items: center;
+}
+
+/* ===========================
+   CARD STYLES
+=========================== */
+.card {
+    width: 280px;
+    height: 420px;
+    background: var(--glass-panel);
+    backdrop-filter: blur(10px);
+    border: var(--border-glow);
+    border-radius: 20px;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    padding: 40px 20px;
+    text-align: center;
+    flex-shrink: 0;
+    transition: all 0.4s ease-out;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    opacity: 0.5;
+    transform: scale(0.9);
+}
+
+.card.selected {
+    width: 320px;
+    height: 480px;
+    background: var(--glass-selected);
+    border: var(--border-selected);
+    box-shadow: 0 0 40px rgba(0, 247, 255, 0.15), inset 0 0 20px rgba(0, 247, 255, 0.05);
+    opacity: 1;
+    transform: scale(1);
+    z-index: 5;
+}
+
+.card-icon {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--accent-cyan);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 30px;
+    box-shadow: var(--glow-cyan);
+    position: relative;
+}
+
+.card-icon::after {
+    content: ''; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px;
+    border-radius: 50%; border: 1px dashed rgba(0, 247, 255, 0.5);
+    animation: spin 10s linear infinite;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+.card-video {
+    width: 60px; height: 60px; object-fit: cover; pointer-events: none; filter: drop-shadow(0 0 5px var(--accent-cyan));
+}
+
+.card-title {
+    font-size: 24px; font-weight: 800; color: var(--text-bright); margin-bottom: 15px; letter-spacing: 1px;
+}
+
+.card-desc {
+    font-size: 14px; color: var(--text-dim); line-height: 1.5; margin-bottom: 30px; padding: 0 10px;
+}
+
+.card-btn {
+    margin-top: auto; background: transparent; border: 1px solid var(--accent-cyan); color: var(--accent-cyan);
+    padding: 12px 40px; border-radius: 30px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;
+    cursor: pointer; transition: 0.3s; opacity: 0; transform: translateY(10px);
+}
+.card.selected .card-btn { opacity: 1; transform: translateY(0); }
+.card-btn:hover { background: var(--accent-cyan); color: #000; box-shadow: var(--glow-cyan); }
+
+/* ===========================
+   NAVIGATION ARROWS
+=========================== */
+.arrow-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(0, 247, 255, 0.1); border: 1px solid rgba(0, 247, 255, 0.3); color: var(--accent-cyan);
+    width: 50px; height: 50px; border-radius: 50%; font-size: 24px; cursor: pointer; z-index: 20; transition: 0.3s;
+    display: flex; align-items: center; justify-content: center;
+}
+.arrow-btn:hover { background: var(--accent-cyan); color: #000; box-shadow: var(--glow-cyan); }
+.left-arrow { left: 40px; }
+.right-arrow { right: 40px; }
+</style>
+</head>
+<body>
+
+<div id="tsparticles"></div>
+
+<div class="left-pane">
+    <div class="left-title">SYSTEM<br>DASHBOARD</div>
+    <p class="left-desc">
+        Parallel Processing Engine Online.<br><br>
+        Select a module to manage identities or initiate biometric scanning.
+    </p>
+</div>
+
+<div class="right-side">
+    <button id="prevBtn" class="arrow-btn left-arrow">‹</button>
+    <button id="nextBtn" class="arrow-btn right-arrow">›</button>
+
+    <div class="carousel-wrapper">
+        <div class="cards-container" id="cardsContainer">
+            <div class="card">
+                <div class="card-icon">
+                    <video class="card-video" src="animations/register.mp4" autoplay loop muted playsinline></video>
+                </div>
+                <div class="card-title">REGISTER</div>
+                <div class="card-desc">Enroll new identities into the secure vector database.</div>
+                <button class="card-btn" onclick="location.href='register.html'">ACCESS</button>
+            </div>
+            <div class="card">
+                <div class="card-icon">
+                    <video class="card-video" src="animations/recognize.mp4" autoplay loop muted playsinline></video>
+                </div>
+                <div class="card-title">SCANNER</div>
+                <div class="card-desc">Initiate parallel processing for real-time identification.</div>
+                <button class="card-btn" onclick="location.href='recognize.html'">ACCESS</button>
+            </div>
+            <div class="card">
+                <div class="card-icon">
+                    <video class="card-video" src="animations/data.mp4" autoplay loop muted playsinline></video>
+                </div>
+                <div class="card-title">DATABASE</div>
+                <div class="card-desc">Manage enrolled subjects and modify vector data.</div>
+                <button class="card-btn" onclick="location.href='dataset.html'">ACCESS</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (async () => {
+        await loadSlim(tsParticles);
+
+        await tsParticles.load("tsparticles", {
+            particles: {
+                color: { value: "#00f7ff" },
+                links: {
+                    enable: true,
+                    color: "rgba(0, 247, 255, 0.3)",
+                    distance: 150,
+                    opacity: 0.5,
+                    width: 1
+                },
+                move: { enable: true, speed: 0.8, direction: "none", random: false, straight: false, outModes: "out" },
+                number: { density: { enable: true, area: 800 }, value: 70 },
+                opacity: { value: 0.5 },
+                shape: { type: "circle" },
+                size: { value: { min: 1, max: 3 } }
+            },
+            interactivity: {
+                events: { onHover: { enable: true, mode: "grab" }, onClick: { enable: true, mode: "push" } },
+                modes: { grab: { distance: 140, links: { opacity: 1 } }, push: { quantity: 3 } }
+            },
+            detectRetina: true,
+            background: { color: "transparent" }
+        });
+    })();
+
+    // Carousel Logic
+    document.addEventListener("DOMContentLoaded", () => {
+        const cardsContainer = document.getElementById('cardsContainer');
+        const cards = document.querySelectorAll('.card');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        let currentIndex = 1;
+
+        const params = new URLSearchParams(window.location.search);
+        const active = params.get("active");
+        if (active === "register") currentIndex = 0;
+        if (active === "recognize") currentIndex = 1;
+        if (active === "dataset") currentIndex = 2;
+
+        function updateCarousel() {
+            const cardWidth = 280; const gap = 40; const totalStep = cardWidth + gap;
+            const offset = (1 - currentIndex) * totalStep;
+            cardsContainer.style.transform = `translateX(${offset}px)`;
+
+            cards.forEach((card, idx) => {
+                if (idx === currentIndex) {
+                    card.classList.add("selected");
+                    const video = card.querySelector("video"); if (video) video.play();
+                } else {
+                    card.classList.remove("selected");
+                    const video = card.querySelector("video"); if (video) video.pause();
+                }
+            });
+            prevBtn.style.opacity = currentIndex === 0 ? "0.3" : "1";
+            prevBtn.style.pointerEvents = currentIndex === 0 ? "none" : "auto";
+            nextBtn.style.opacity = currentIndex === cards.length - 1 ? "0.3" : "1";
+            nextBtn.style.pointerEvents = currentIndex === cards.length - 1 ? "none" : "auto";
+        }
+
+        prevBtn.addEventListener('click', () => { if (currentIndex > 0) { currentIndex--; updateCarousel(); }});
+        nextBtn.addEventListener('click', () => { if (currentIndex < cards.length - 1) { currentIndex++; updateCarousel(); }});
+        updateCarousel();
+    });
+</script>
+
+</body>
+</html>

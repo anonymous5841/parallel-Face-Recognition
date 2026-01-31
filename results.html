@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analysis Complete</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --bg-main: #020a13;
+        --glass-dark: rgba(2, 10, 20, 0.9);
+        --accent-cyan: #00f7ff;
+        --accent-blue: #0066ff;
+        --accent-green: #3be482;
+        --accent-red: #ff2a6d;
+        --accent-orange: #ff9f43; /* For fire */
+        --text-bright: #ffffff;
+        --text-dim: #a0aebf;
+        
+        --glow-cyan: 0 0 15px rgba(0, 247, 255, 0.4);
+        --border-glow: 1px solid rgba(0, 247, 255, 0.2);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-main);
+        /* Dark tech grid background */
+        background-image: 
+            linear-gradient(rgba(2, 10, 19, 0.92), rgba(2, 10, 19, 0.95)),
+            url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.828-1.415 1.415-.828-.828.828-.828zm-1.415 1.415l.828.828-1.415 1.415-.828-.828.828-.828zm-1.415 1.415l.828.828-1.415 1.415-.828-.828.828-.828zm-1.415 1.415l.828.828-1.415 1.415-.828-.828.828-.828z' fill='%23112233' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E");
+        height: 100vh;
+        overflow: hidden;
+        display: flex; align-items: center; justify-content: center;
+    }
+
+    /* BACK BUTTON */
+    .back-btn {
+        position: absolute; top: 30px; left: 30px;
+        background: transparent; border: 1px solid var(--accent-cyan);
+        color: var(--accent-cyan);
+        padding: 10px 25px; border-radius: 30px;
+        font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+        cursor: pointer; z-index: 100; transition: 0.3s;
+    }
+    .back-btn:hover { background: var(--accent-cyan); color: #000; box-shadow: var(--glow-cyan); }
+
+    /* LAYOUT WRAPPER */
+    .dashboard-wrapper {
+        display: flex; gap: 30px;
+        width: 1200px; max-width: 95%; height: 650px;
+    }
+
+    /* --- LEFT COLUMN: IDENTITY --- */
+    .identity-card {
+        flex: 3.5;
+        background: var(--glass-dark);
+        border: var(--border-glow);
+        border-radius: 20px;
+        padding: 40px;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        text-align: center;
+        box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        position: relative; overflow: hidden;
+        animation: slideInLeft 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    
+    @keyframes slideInLeft { from { transform: translateX(-100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* Glowing Ring Background */
+    .identity-card::before {
+        content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+        background: radial-gradient(circle, rgba(0, 247, 255, 0.05) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .profile-img {
+        width: 200px; height: 200px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--text-dim);
+        margin-bottom: 25px;
+        box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        z-index: 2;
+        transition: transform 0.5s;
+    }
+    .profile-img:hover { transform: scale(1.05); }
+
+    .status-badge {
+        padding: 8px 20px; border-radius: 4px;
+        font-size: 14px; font-weight: 800; text-transform: uppercase;
+        margin-bottom: 20px; letter-spacing: 2px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid var(--text-dim); color: var(--text-dim);
+    }
+    
+    .match .status-badge { background: rgba(59, 228, 130, 0.1); color: var(--accent-green); border-color: var(--accent-green); box-shadow: 0 0 15px rgba(59,228,130,0.2); }
+    .match .profile-img { border-color: var(--accent-green); box-shadow: 0 0 25px rgba(59, 228, 130, 0.4); }
+    
+    .nomatch .status-badge { background: rgba(255, 42, 109, 0.1); color: var(--accent-red); border-color: var(--accent-red); box-shadow: 0 0 15px rgba(255, 42, 109, 0.2); }
+    .nomatch .profile-img { border-color: var(--accent-red); filter: grayscale(100%); opacity: 0.8; }
+
+    .user-name { font-size: 36px; font-weight: 800; color: var(--text-bright); margin-bottom: 5px; z-index: 2; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+    .user-sub { color: var(--accent-cyan); font-size: 14px; text-transform: uppercase; letter-spacing: 2px; z-index: 2; }
+
+
+    /* --- RIGHT COLUMN: ANALYTICS --- */
+    .stats-dashboard {
+        flex: 6.5;
+        background: var(--glass-dark);
+        border: var(--border-glow);
+        border-radius: 20px;
+        padding: 40px;
+        display: flex; flex-direction: column;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        animation: slideInRight 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    @keyframes slideInRight { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    .dash-header {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;
+    }
+    .dash-title { font-size: 20px; font-weight: 700; color: var(--text-bright); letter-spacing: 1px; }
+    
+    /* === ROCKET LAUNCH BADGE === */
+    .speedup-pill-container {
+        position: relative;
+        min-width: 180px;
+        height: 45px;
+        display: flex; align-items: center; justify-content: flex-end;
+        padding-right: 10px;
+    }
+
+    /* The actual badge background */
+    .speedup-pill-bg {
+        position: absolute; top:0; left:0; width:100%; height:100%;
+        background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+        border-radius: 30px;
+        box-shadow: 0 0 20px rgba(0, 247, 255, 0.5);
+        opacity: 0; /* Hidden initially */
+        animation: badgeAppear 0.5s ease-out forwards 1.5s; /* Appear after rocket lands */
+    }
+    @keyframes badgeAppear { to { opacity: 1; } }
+
+    /* The Flying Rocket & Fire Container */
+    .rocket-assembly {
+        position: absolute;
+        left: 15px;
+        /* Start way below the container */
+        transform: translateY(300px); 
+        display: flex; flex-direction: column; align-items: center;
+        z-index: 10;
+        animation: launchSequence 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards 0.8s;
+    }
+
+    /* The Rocket Emoji */
+    .rocket-body { font-size: 24px; z-index: 2; }
+
+    /* The Fire Tail */
+    .rocket-fire {
+        width: 10px; height: 30px;
+        background: linear-gradient(to bottom, var(--accent-orange), var(--accent-red), transparent);
+        border-radius: 0 0 10px 10px;
+        margin-top: -5px;
+        filter: blur(2px);
+        animation: flicker 0.1s infinite alternate;
+    }
+
+    /* Launch Animation Path */
+    @keyframes launchSequence {
+        0% { transform: translateY(300px) scale(0.8); }
+        70% { transform: translateY(-15px) scale(1.1); } /* Overshoot */
+        100% { transform: translateY(7px) scale(1); } /* Land in position */
+    }
+
+    /* Fire Flicker */
+    @keyframes flicker {
+        0% { transform: scaleY(1) scaleX(1); opacity: 0.8; }
+        100% { transform: scaleY(1.2) scaleX(1.1); opacity: 1; }
+    }
+    
+    /* Text Reveal */
+    .speedup-text {
+        color: #000; font-weight: 900; font-size: 18px;
+        z-index: 5;
+        opacity: 0;
+        transform: translateX(10px);
+        animation: revealText 0.5s ease-out forwards 1.8s; /* Show after rocket lands */
+    }
+    @keyframes revealText { to { opacity: 1; transform: translateX(0); } }
+
+
+    /* MINI STATS GRID */
+    .mini-stats-grid { display: flex; gap: 20px; margin-bottom: 30px; }
+    .mini-stat {
+        flex: 1; background: rgba(255,255,255,0.03);
+        padding: 20px; border-radius: 12px; text-align: center;
+        border: 1px solid rgba(255,255,255,0.05);
+        transition: 0.3s;
+    }
+    .mini-stat:hover { background: rgba(255,255,255,0.06); border-color: var(--accent-cyan); transform: translateY(-5px); }
+
+    .ms-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .ms-val { font-size: 28px; font-weight: 800; color: var(--text-bright); font-variant-numeric: tabular-nums; }
+    .ms-val.serial { color: var(--accent-red); text-shadow: 0 0 15px rgba(255, 42, 109, 0.4); }
+    .ms-val.parallel { color: var(--accent-green); text-shadow: 0 0 15px rgba(59, 228, 130, 0.4); }
+
+    /* CHART CONTAINER */
+    .chart-container { flex: 1; position: relative; width: 100%; min-height: 250px; }
+
+    @media (max-width: 1000px) {
+        .dashboard-wrapper { height: auto; flex-direction: column; padding: 50px 0; overflow-y: auto; }
+        body { overflow-y: auto; display: block; }
+        .back-btn { top: 20px; left: 20px; }
+    }
+</style>
+</head>
+<body>
+
+    <button class="back-btn" onclick="window.location.href='recognize.html'">← Return</button>
+
+    <div class="dashboard-wrapper">
+        
+        <div id="identity-card" class="identity-card">
+            </div>
+
+        <div class="stats-dashboard">
+            <div class="dash-header">
+                <div class="dash-title">PERFORMANCE METRICS</div>
+                
+                <div class="speedup-pill-container">
+                    <div class="speedup-pill-bg"></div> <div class="rocket-assembly">
+                        <div class="rocket-body">🚀</div>
+                        <div class="rocket-fire"></div>
+                    </div>
+                    
+                    <div id="speedup-text" class="speedup-text">CALCULATING...</div>
+                </div>
+            </div>
+
+            <div class="mini-stats-grid">
+                <div class="mini-stat">
+                    <div class="ms-label">SERIAL EXECUTION</div>
+                    <div id="serial-val" class="ms-val serial">0.000s</div>
+                </div>
+                <div class="mini-stat">
+                    <div class="ms-label">PARALLEL EXECUTION</div>
+                    <div id="parallel-val" class="ms-val parallel">0.000s</div>
+                </div>
+                <div class="mini-stat">
+                    <div class="ms-label">CONFIDENCE SCORE</div>
+                    <div id="conf-val" class="ms-val">0%</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="perfChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        window.onload = function() {
+                // Prefer reading full result from sessionStorage (avoid huge query strings)
+                let data = null;
+                try { data = JSON.parse(sessionStorage.getItem('recognition_result')); } catch (e) { data = null; }
+
+                let status, name, img, score, serialTime, parallelTime, speedup;
+                if (data) {
+                    status = data.match ? 'match' : 'nomatch';
+                    name = data.name || null;
+                    img = data.img || data.input_img || null;
+                    score = data.score || 0;
+                    serialTime = parseFloat(data.serial_time || 0);
+                    parallelTime = parseFloat(data.parallel_time || 0);
+                    speedup = data.speedup || 0;
+                } else {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    status = urlParams.get('status');
+                    name = urlParams.get('name');
+                    img = urlParams.get('img');
+                    score = urlParams.get('score');
+                    serialTime = parseFloat(urlParams.get('serial') || 0);
+                    parallelTime = parseFloat(urlParams.get('parallel') || 0);
+                    speedup = urlParams.get('speedup');
+                }
+
+            // 1. Setup Identity Card
+            const card = document.getElementById('identity-card');
+            const profileImg = (img && !img.includes('mp4')) ? img : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png';
+
+            if(status === 'match') {
+                card.classList.add('match');
+                card.innerHTML = `
+                    <div class="status-badge">IDENTITY VERIFIED</div>
+                    <img src="${profileImg}" class="profile-img">
+                    <div class="user-name">${name}</div>
+                    <div class="user-sub">ACCESS GRANTED</div>
+                `;
+            } else {
+                card.classList.add('nomatch');
+                card.innerHTML = `
+                    <div class="status-badge">ACCESS DENIED</div>
+                    <img src="${profileImg}" class="profile-img">
+                    <div class="user-name">UNKNOWN</div>
+                    <div class="user-sub">NO MATCH FOUND</div>
+                `;
+            }
+
+            // 2. Animate Numbers
+            animateValue("serial-val", 0, serialTime, 2000, "s");
+            animateValue("parallel-val", 0, parallelTime, 2000, "s");
+            animateValue("conf-val", 0, parseFloat(score) * 100, 2000, "%");
+            
+            // 3. Set Speedup Text (Hidden until animation finishes)
+            const speedVal = Number(speedup) || 0;
+            document.getElementById('speedup-text').innerText = `${speedVal.toFixed(2)}x FASTER`;
+
+
+            // 4. Render Chart with Dramatic "Drop" Animation
+            setTimeout(() => {
+                renderLineChart(serialTime, parallelTime);
+            }, 800); // Wait for layout to settle
+        };
+
+        function animateValue(id, start, end, duration, suffix) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                let val = (progress * (end - start) + start);
+                if (suffix === "%") val = val.toFixed(2); else val = val.toFixed(2);
+                obj.innerHTML = val + suffix;
+                if (progress < 1) window.requestAnimationFrame(step);
+            };
+            window.requestAnimationFrame(step);
+        }
+        
+
+        function renderLineChart(serial, parallel) {
+            const ctx = document.getElementById('perfChart').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(0, 247, 255, 0.4)');
+            gradient.addColorStop(1, 'rgba(0, 247, 255, 0.0)');
+
+            
+            const startDropHeight = Math.max(serial, parallel) * 2.5;
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Serial Processing', 'Parallel Processing'],
+                    datasets: [{
+                        label: 'Time (Seconds)',
+                        data: [serial, parallel],
+                        borderColor: '#00f7ff',
+                        backgroundColor: gradient,
+                        borderWidth: 4,
+                        pointBackgroundColor: ['#ff2a6d', '#3be482'],
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 3,
+                        pointRadius: 10,
+                        pointHoverRadius: 14,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#a0aebf' },
+                            title: { display: true, text: 'LOWER IS BETTER', color: '#a0aebf', font: {size: 10} }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#ffffff', font: {weight: 'bold', family: 'Inter', size: 14} }
+                        }
+                    },
+                    // === THE DRAMATIC DROP ANIMATION ===
+                    animation: {
+                        y: {
+                            easing: 'easeOutBounce', 
+                            duration: 2000,
+                            from: startDropHeight 
+                        },
+                        x: { duration: 0 } 
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
