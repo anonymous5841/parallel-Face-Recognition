@@ -14,14 +14,17 @@ Option 1:
 2.Run the compare_implementation.py file
 
 Option 2:
+
 use command:"c:/Users/(Username)/Desktop/(foldername)/python_scripts/compare_implementations.py" "c:/Users/(Username)/Desktop/(foldername)/reference_faces/aina.jpg"
 
 **For web absed execution:**
+
 Run command in terminal: node server.js
 
 ctrl+click the localhost link it prints in the terminal
 
 **Results/Ouput:**
+
 1.serial time
 
 2.parallel time
